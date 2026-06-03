@@ -1,3 +1,10 @@
+Создал модели, миграции, эндпоинты и запросы в TestForPromoOS.http 
+ConcurrencyToken для xmin (RowVersion для PostgreSQL)
+RabbitMQ publish. Секция RabbitMq в appsettings.json.
+Graceful shutdown.  DisposeAsync вызывает явный _connection.CloseAsync() перед DisposeAsync
+Обернул в докер + healthcheck'и + автомиграция при старте
+Тест (интеграционный) в TestForPromoOS.Tests. Тест Create_then_complete_publishes_task_completed_event: POST → 201, PUT → 200, ассерт что фейк получил ровно одно сообщение с правильными TaskId/Title/Priority/CompletedAt. Проходит
+
 Title и пустые строки — Program.cs:44:                                                                                                                                        
   if (string.IsNullOrWhiteSpace(req.Title) || req.Title.Length > 200)                                                                                                              
       return Results.BadRequest("Title is required and must be 1..200 chars.");                                                                                                    
