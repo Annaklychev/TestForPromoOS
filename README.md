@@ -161,11 +161,3 @@ TestForPromoOS/
 └── TestForPromoOS.Tests/
     └── CompleteTaskFlowTests.cs
 ```
-
-## Чего нет (осознанно)
-
-- Пагинации для `GET /tasks` — задача оговаривала «упростим».
-- Consumer'а для RabbitMQ — нужен только publish.
-- Outbox-паттерна — публикация после `SaveChangesAsync` без подтверждений, как и просили («fail silently, но с логом»).
-- HTTPS внутри контейнера — `UseHttpsRedirection` без выставленного `ASPNETCORE_HTTPS_PORT` молчит и не редиректит.
-- Тестов на параллельный 409 и на graceful shutdown с in-flight публикациями — поведение покрыто кодом, но дополнительные тесты не написаны.
