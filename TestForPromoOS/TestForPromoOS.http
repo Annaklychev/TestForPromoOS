@@ -1,6 +1,22 @@
 @TestForPromoOS_HostAddress = http://localhost:5039
 
-GET {{TestForPromoOS_HostAddress}}/weatherforecast/
+### Create task
+POST {{TestForPromoOS_HostAddress}}/tasks
+Content-Type: application/json
+
+{
+  "title": "Buy milk",
+  "priority": "High"
+}
+
+### Get all tasks
+GET {{TestForPromoOS_HostAddress}}/tasks
 Accept: application/json
+
+### Complete task
+PUT {{TestForPromoOS_HostAddress}}/tasks/00000000-0000-0000-0000-000000000000/complete
+
+### Delete task
+DELETE {{TestForPromoOS_HostAddress}}/tasks/00000000-0000-0000-0000-000000000000
 
 ###

@@ -1,12 +1,37 @@
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
+using TestForPromoOS.Data;
+using TestForPromoOS.Messaging;
+using TestForPromoOS.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMq"));
+builder.Services.AddSingleton<RabbitMqTaskEventPublisher>();
+builder.Services.AddSingleton<ITaskEventPublisher>(sp =>
+    sp.GetRequiredService<RabbitMqTaskEventPublisher>());
+builder.Services.AddHostedService(sp =>
+    sp.GetRequiredService<RabbitMqTaskEventPublisher>());
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (db.Database.IsRelational())
+        await db.Database.MigrateAsync();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -14,28 +39,64 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapPost("/tasks", async (CreateTaskRequest req, AppDbContext db) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    if (string.IsNullOrWhiteSpace(req.Title) || req.Title.Length > 200)
+        return Results.BadRequest("Title is required and must be 1..200 chars.");
 
-app.MapGet("/weatherforecast", () =>
+    var item = new TaskItem
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
+        Id = Guid.NewGuid(),
+        Title = req.Title,
+        IsCompleted = false,
+        CreatedAt = DateTimeOffset.UtcNow,
+        Priority = req.Priority
+    };
+
+    db.TaskItems.Add(item);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/tasks/{item.Id}", item);
+});
+
+app.MapGet("/tasks", async (AppDbContext db) =>
+    await db.TaskItems.AsNoTracking().ToListAsync());
+
+app.MapPut("/tasks/{id:guid}/complete", async (
+    Guid id,
+    AppDbContext db,
+    ITaskEventPublisher publisher) =>
+{
+    var item = await db.TaskItems.FindAsync(id);
+    if (item is null) return Results.NotFound();
+    if (item.IsCompleted) return Results.Conflict("Task already completed.");
+
+    item.IsCompleted = true;
+    item.CompletedAt = DateTimeOffset.UtcNow;
+
+    try
+    {
+        await db.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+        return Results.Conflict("Task already completed.");
+    }
+
+    publisher.PublishTaskCompleted(new TaskCompletedMessage(
+        item.Id, item.Title, item.CompletedAt!.Value, item.Priority));
+
+    return Results.Ok(item);
+});
+
+app.MapDelete("/tasks/{id:guid}", async (Guid id, AppDbContext db) =>
+{
+    var rows = await db.TaskItems.Where(t => t.Id == id).ExecuteDeleteAsync();
+    return rows == 0 ? Results.NotFound() : Results.NoContent();
+});
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public record CreateTaskRequest(string Title, Priority Priority = Priority.Medium);
+
+public partial class Program;

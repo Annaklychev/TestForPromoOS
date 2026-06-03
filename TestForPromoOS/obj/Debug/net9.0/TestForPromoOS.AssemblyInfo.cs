@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TestForPromoOS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+67399a2e5e4e7b693d2eefe0eea4d5bb88fd5bda")]
 [assembly: System.Reflection.AssemblyProductAttribute("TestForPromoOS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TestForPromoOS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
