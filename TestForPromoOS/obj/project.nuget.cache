@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "pgMr1fDnLOY=",
+  "success": true,
+  "projectFilePath": "D:\\projects\\PromoOS\\TestForPromoOS\\TestForPromoOS\\TestForPromoOS.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Aman\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.16\\microsoft.aspnetcore.openapi.9.0.16.nupkg.sha512",
+    "C:\\Users\\Aman\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

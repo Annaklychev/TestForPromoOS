@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestForPromoOS", "TestForPromoOS\TestForPromoOS.csproj", "{7553B069-A8C8-43BC-9785-05F60EBDA378}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7553B069-A8C8-43BC-9785-05F60EBDA378}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7553B069-A8C8-43BC-9785-05F60EBDA378}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7553B069-A8C8-43BC-9785-05F60EBDA378}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7553B069-A8C8-43BC-9785-05F60EBDA378}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
